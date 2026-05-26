@@ -238,9 +238,10 @@ def verify_user(username: str, password: str) -> Optional[dict]:
 
 def get_all_users() -> list[dict]:
     try:
-        rows = _request("GET", "users", query="?select=user_id:id,username,name,role,email,created_at&order=created_at.desc")
+        rows = _request("GET", "users", query="?select=user_id,username,name,role,email,created_at&order=created_at.desc")
         for r in rows:
             r["created_at"] = _ts(r.get("created_at"))
+            r["id"] = r.get("user_id")
         return rows
     except:
         return []
