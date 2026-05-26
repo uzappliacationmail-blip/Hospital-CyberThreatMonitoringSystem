@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital CTMS — Cyber Threat Monitoring System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --secondary: #1e40af;
+      --accent: #00d4ff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, #1e3a5f 100%);
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    /* Login */
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      overflow: hidden;
+      max-width: 960px;
+      width: 100%;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-brand {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      padding: 60px 50px;
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(0, 212, 255, 0.15), transparent 60%);
+    }
+
+    .login-brand .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--accent), #10b981);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand h1 {
+      font-size: 32px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand p {
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+    }
+
+    .login-form {
+      padding: 60px 50px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-header {
+      margin-bottom: 32px;
+    }
+
+    .form-header .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .form-header h2 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    }
+
+    .hint {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .hint .chip {
+      display: inline-block;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 600;
+      margin: 0 2px;
+    }
+
+    /* Dashboard */
+    .dashboard { display: none; min-height: 100vh; }
+
+    .topbar {
+      background: var(--surface);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar .brand .icon {
+      font-size: 24px;
+    }
+
+    .topbar .brand .title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background: rgba(0, 212, 255, 0.2);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-logout:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .content {
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card .stat-value {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .stat-label {
+      color: var(--text-muted);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-card.normal .stat-value { color: var(--success); }
+    .stat-card.anomaly .stat-value { color: var(--danger); }
+    .stat-card.rate .stat-value { color: var(--warning); }
+
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .predict-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .form-row:last-of-type { grid-template-columns: 1fr 1fr 1fr; }
+
+    #predict-form .form-group label { font-size: 11px; }
+
+    #predict-form .form-group input,
+    #predict-form .form-group select {
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    #predict-result { margin-top: 16px; }
+
+    .result {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      border-radius: 12px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result.normal {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--success);
+    }
+
+    .result.anomaly {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+    }
+
+    .result-icon { font-size: 40px; }
+
+    .result-text strong { display: block; margin-bottom: 4px; }
+
+    .alerts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 12px;
+      border-left: 4px solid var(--warning);
+    }
+
+    .alert-item.severity-critical { border-left-color: var(--danger); }
+    .alert-item.severity-low { border-left-color: var(--text-muted); }
+
+    .alert-info strong { display: block; margin-bottom: 4px; }
+
+    .alert-info .severity {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-right: 8px;
+    }
+
+    .alert-info small { color: var(--text-muted); }
+
+    .btn-resolve {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-resolve:hover { transform: scale(1.05); }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .panels { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .login-brand { width: 100%; padding: 40px; }
+      .login-card { flex-direction: column; }
+      .login-form { padding: 40px 30px; }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-container">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="logo">🛡️</div>
+        <h1>Hospital CTMS</h1>
+        <p>Cyber Threat Monitoring System — Real-time network traffic analysis and anomaly detection for healthcare infrastructure.</p>
+      </div>
+      <form class="login-form" id="login-form">
+        <div class="form-header">
+          <div class="eyebrow">🔒 Secure Portal</div>
+          <h2>Welcome, Guardian</h2>
+          <p>Enter your credentials to access the threat monitoring dashboard.</p>
+        </div>
+        <div id="login-error" style="display:none"></div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" value="admin" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" value="admin123" required>
+        </div>
+        <button type="submit" class="btn-primary" id="login-btn">
+          <span>Sign In</span>
+        </button>
+        <div class="hint">
+          Demo credentials: <span class="chip">admin</span> / <span class="chip">admin123</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboard-screen" class="dashboard">
+    <header class="topbar">
+      <div class="brand">
+        <span class="icon">🛡️</span>
+        <span class="title">Hospital CTMS</span>
+      </div>
+      <div class="user-info">
+        <span id="user-name">User</span>
+        <span class="badge" id="user-role">analyst</span>
+        <button class="btn-logout" id="logout-btn">Sign Out</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total Logs</div>
+        </div>
+        <div class="stat-card normal">
+          <div class="stat-value" id="stat-normal">0</div>
+          <div class="stat-label">Normal Traffic</div>
+        </div>
+        <div class="stat-card anomaly">
+          <div class="stat-value" id="stat-anomaly">0</div>
+          <div class="stat-label">Anomalies</div>
+        </div>
+        <div class="stat-card rate">
+          <div class="stat-value" id="stat-rate">0%</div>
+          <div class="stat-label">Threat Rate</div>
+        </div>
+      </div>
+
+      <div class="panels">
+        <div class="panel">
+          <h2><span>🔮</span> Traffic Prediction</h2>
+          <form id="predict-form" class="predict-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Duration (sec)</label>
+                <input type="number" step="any" id="f-duration" value="0.5">
+              </div>
+              <div class="form-group">
+                <label>Protocol</label>
+                <select id="f-proto">
+                  <option value="0">TCP</option>
+                  <option value="1">UDP</option>
+                  <option value="2">ICMP</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Src Bytes</label>
+                <input type="number" id="f-src" value="512">
+              </div>
+              <div class="form-group">
+                <label>Dst Bytes</label>
+                <input type="number" id="f-dst" value="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Flag</label>
+                <input type="number" id="f-flag" value="1">
+              </div>
+              <div class="form-group">
+                <label>Source IP</label>
+                <input type="text" id="f-srcip" value="192.168.1.100">
+              </div>
+              <div class="form-group">
+                <label>Dest IP</label>
+                <input type="text" id="f-dstip" value="10.0.0.1">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Analyze Traffic</button>
+          </form>
+          <div id="predict-result"></div>
+        </div>
+
+        <div class="panel">
+          <h2><span>⚠️</span> Recent Alerts</h2>
+          <div id="alerts-list" class="alerts-list">
+            <div class="loading">Loading alerts...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
+
+    const SUPABASE_URL = 'https://uezxdiddyciwzwihsjlu.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlenhkaWRkeWNpd3p3aWhzamx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjE3MTAsImV4cCI6MjA5NTM5NzcxMH0.__0NsBiOIu8XE4nAjyYEKRGXoFv5wqrIi8AeFkHUse0'
+    const PREDICT_API = `${SUPABASE_URL}/functions/v1/predict`
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    let currentUser = null
+
+    // Password hashing
+    async function hashPassword(password) {
+      const encoder = new TextEncoder()
+      const data = encoder.encode('ctms_salt_' + password)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    }
+
+    // DOM elements
+    const loginScreen = document.getElementById('login-screen')
+    const dashboardScreen = document.getElementById('dashboard-screen')
+    const loginForm = document.getElementById('login-form')
+    const loginError = document.getElementById('login-error')
+    const logoutBtn = document.getElementById('logout-btn')
+    const predictForm = document.getElementById('predict-form')
+
+    // Check session
+    function checkSession() {
+      const saved = localStorage.getItem('ctms_user')
+      if (saved) {
+        currentUser = JSON.parse(saved)
+        showDashboard()
+        return true
+      }
+      return false
+    }
+
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      loginError.style.display = 'none'
+
+      const username = document.getElementById('username').value
+      const password = document.getElementById('password').value
+      const hash = await hashPassword(password)
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('user_id, username, role, name')
+        .eq('username', username)
+        .eq('password', hash)
+        .maybeSingle()
+
+      if (error || !data) {
+        loginError.innerHTML = '<div class="error-msg">Invalid username or password</div>'
+        loginError.style.display = 'block'
+        return
+      }
+
+      currentUser = data
+      localStorage.setItem('ctms_user', JSON.stringify(data))
+      showDashboard()
+    })
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      currentUser = null
+      localStorage.removeItem('ctms_user')
+      loginScreen.style.display = 'flex'
+      dashboardScreen.style.display = 'none'
+    })
+
+    // Show dashboard
+    async function showDashboard() {
+      loginScreen.style.display = 'none'
+      dashboardScreen.style.display = 'block'
+
+      document.getElementById('user-name').textContent = currentUser?.username || 'User'
+      document.getElementById('user-role').textContent = currentUser?.role || 'analyst'
+
+      await loadStats()
+      await loadAlerts()
+    }
+
+    // Load stats
+    async function loadStats() {
+      const { count: total } = await supabase.from('traffic_logs').select('*', { count: 'exact', head: true })
+      const { count: normal } = await supabase.from('traffic_logs').select('*', { count: 'exact', head: true }).eq('status', 'normal')
+      const { count: anomaly } = await supabase.from('traffic_logs').select('*', { count: 'exact', head: true }).eq('status', 'anomaly')
+
+      const t = total || 0
+      const n = normal || 0
+      const a = anomaly || 0
+      const rate = t > 0 ? ((a / t) * 100).toFixed(1) : 0
+
+      document.getElementById('stat-total').textContent = t
+      document.getElementById('stat-normal').textContent = n
+      document.getElementById('stat-anomaly').textContent = a
+      document.getElementById('stat-rate').textContent = rate + '%'
+    }
+
+    // Load alerts
+    async function loadAlerts() {
+      const { data } = await supabase
+        .from('alerts')
+        .select('alert_id, alert_type, severity, timestamp, resolved')
+        .eq('resolved', false)
+        .order('timestamp', { ascending: false })
+        .limit(10)
+
+      const list = document.getElementById('alerts-list')
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="empty">No active alerts</div>'
+        return
+      }
+
+      list.innerHTML = data.map(a => `
+        <div class="alert-item severity-${a.severity}">
+          <div class="alert-info">
+            <strong>${a.alert_type}</strong>
+            <span class="severity">${a.severity}</span>
+            <small>${new Date(a.timestamp).toLocaleString()}</small>
+          </div>
+          <button class="btn-resolve" data-id="${a.alert_id}">Resolve</button>
+        </div>
+      `).join('')
+
+      // Add click handlers
+      list.querySelectorAll('.btn-resolve').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id
+          await supabase.from('alerts').update({ resolved: true }).eq('alert_id', id)
+          await loadStats()
+          await loadAlerts()
+        })
+      })
+    }
+
+    // Predict
+    predictForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const resultDiv = document.getElementById('predict-result')
+      resultDiv.innerHTML = '<div class="loading">Analyzing traffic...</div>'
+
+      const features = {
+        duration: parseFloat(document.getElementById('f-duration').value),
+        protocol_type: parseInt(document.getElementById('f-proto').value),
+        src_bytes: parseFloat(document.getElementById('f-src').value),
+        dst_bytes: parseFloat(document.getElementById('f-dst').value),
+        flag: parseFloat(document.getElementById('f-flag').value)
+      }
+
+      try {
+        // Call prediction API
+        const res = await fetch(`${PREDICT_API}/predict`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(features)
+        })
+        const pred = await res.json()
+
+        // Log to database
+        await supabase.from('traffic_logs').insert({
+          source_ip: document.getElementById('f-srcip').value,
+          destination_ip: document.getElementById('f-dstip').value,
+          protocol: ['tcp', 'udp', 'icmp'][features.protocol_type] || 'tcp',
+          status: pred.prediction,
+          features: JSON.stringify(features),
+          confidence: pred.confidence,
+          source: 'web'
+        })
+
+        const isAnomaly = pred.prediction === 'anomaly'
+        resultDiv.innerHTML = `
+          <div class="result ${isAnomaly ? 'anomaly' : 'normal'}">
+            <div class="result-icon">${isAnomaly ? '🚨' : '✅'}</div>
+            <div class="result-text">
+              <strong>${isAnomaly ? 'ANOMALY DETECTED' : 'NORMAL TRAFFIC'}</strong>
+              <p>Confidence: ${(pred.confidence * 100).toFixed(1)}%</p>
+              ${pred.response_ms ? `<small>Response time: ${pred.response_ms}ms</small>` : ''}
+            </div>
+          </div>
+        `
+
+        // Refresh stats
+        await loadStats()
+      } catch (err) {
+        resultDiv.innerHTML = `<div class="error-msg">Error: ${err.message}</div>`
+      }
+    })
+
+    // Init
+    checkSession()
+  </script>
+</body>
+</html>
