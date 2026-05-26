@@ -30,7 +30,7 @@ if __name__ == "__main__":
     from main import app
     import database as _db
 
-    eng = "MySQL ✅" if _db._engine == "mysql" else "SQLite ✅ (MySQL not available — using SQLite)"
+    eng = "Supabase PostgreSQL"
     print(f"  Database : {eng}")
     print(f"  Server   : http://localhost:8000")
     print(f"  Login    : admin / admin123")

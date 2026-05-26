@@ -7,9 +7,8 @@ Jinja2>=3.1.0
 scikit-learn>=1.4.0
 numpy>=1.26.0
 
-# MySQL driver (optional — SQLite is used automatically if MySQL is unavailable)
-# Uncomment if you have a MySQL server:
-# mysql-connector-python>=8.4.0
+# PostgreSQL driver (Supabase)
+psycopg2-binary>=2.9.9
 
 # Utilities (stdlib only — no extra installs needed)
 # sqlite3, csv, json, hashlib, logging, secrets — all built-in
