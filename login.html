@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hospital CTMS — Secure Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<style>
+:root {
+  --navy:    #0a1428;
+  --navy-l:  #1a365d;
+  --teal:    #00d4ff;
+  --teal-d:  #0891b2;
+  --rose:    #ff006e;
+  --rose-l:  #f43f5e;
+  --text:    #0f172a;
+  --text-l:  #1e293b;
+  --muted:   #64748b;
+  --border:  #e2e8f0;
+  --bg:      #f0f4f8;
+  --success: #10b981;
+  --amber:   #f59e0b;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg, var(--navy) 0%, #1a2f5a 50%, #0a1f3f 100%);
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+
+/* Animated background */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 0, 110, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+  pointer-events:none;
+  animation: bgShift 15s ease-in-out infinite;
+}
+
+@keyframes bgShift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -20px); }
+}
+
+body::after{
+  content:'';position:fixed;width:800px;height:800px;
+  background:radial-gradient(circle,rgba(0,212,255,.12) 0%,transparent 70%);
+  top:-200px;left:-200px;pointer-events:none;
+  animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(40px) translateX(20px); }
+}
+
+.blob2{
+  position:fixed;width:600px;height:600px;
+  background:radial-gradient(circle,rgba(255,0,110,.08) 0%,transparent 70%);
+  bottom:-250px;right:-250px;pointer-events:none;
+  animation: float 25s ease-in-out infinite reverse;
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-30px); }
+}
+
+/* Card styles */
+.card{
+  position:relative;z-index:10;
+  display:flex;width:920px;border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(0, 0, 0, 0.2),
+             0 0 0 1px rgba(255, 255, 255, 0.1),
+             inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255, 255, 255, 0.15);
+  animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Left panel ── */
+.brand{
+  width:360px;flex-shrink:0;
+  background:linear-gradient(135deg, var(--navy) 0%, var(--navy-l) 100%);
+  padding:56px 42px;display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+
+.brand::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(0,212,255,.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(16,185,129,.04) 0%, transparent 40%);
+}
+
+.brand::after{
+  content:'';position:absolute;bottom:-120px;left:-120px;
+  width:360px;height:360px;
+  background:radial-gradient(circle,rgba(0,212,255,.15) 0%,transparent 65%);
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.brand-inner{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;}
+
+.logo{
+  width:64px;height:64px;
+  background:linear-gradient(135deg, var(--teal), #00d4ff);
+  border-radius:18px;display:flex;align-items:center;justify-content:center;
+  font-size:32px;color:#fff;margin-bottom:32px;
+  box-shadow:0 12px 32px rgba(0, 212, 255, 0.4),
+             inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: bounce 2s ease-in-out infinite;
+  position:relative;
+}
+
+.logo::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(16,185,129,0.3));
+  border-radius: 18px;
+  z-index: -1;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.brand-tag{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;opacity:0.9;}
+
+.brand-h{
+  font-size:28px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:14px;
+  font-family:'Poppins',sans-serif;
+}
+
+.brand-h span{
+  background:linear-gradient(135deg, var(--teal), #10b981);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.brand-p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:36px;}
+
+.features{list-style:none;}
+
+.features li{
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;color:rgba(255,255,255,.65);
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);
+  transition:all 0.3s ease;
+}
+
+.features li:hover {
+  color:rgba(255,255,255,.95);
+  padding-left: 8px;
+}
+
+.features li:last-child{border-bottom:none;}
+
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--teal);flex-shrink:0;
+  box-shadow:0 0 8px var(--teal);
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { box-shadow:0 0 8px var(--teal); }
+  50% { box-shadow:0 0 16px var(--teal); }
+}
+
+.brand-foot{
+  position:relative;z-index:2;margin-top:auto;padding-top:32px;
+  font-size:11px;color:rgba(255,255,255,.25);font-family:'JetBrains Mono',monospace;
+}
+
+/* ── Right panel ── */
+.form-wrap{
+  flex:1;background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding:56px 52px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--teal);background:linear-gradient(135deg, rgba(0,212,255,.12), rgba(16,185,129,.08));
+  border:1.5px solid rgba(0,212,255,.3);
+  padding:6px 14px;border-radius:24px;margin-bottom:20px;width:fit-content;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.form-h{
+  font-size:28px;font-weight:800;color:var(--text);margin-bottom:8px;
+  font-family:'Poppins',sans-serif;
+  animation: fadeIn 0.8s ease-out 0.25s both;
+}
+
+.form-p{
+  font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+.divider{
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--border), transparent);
+  margin-bottom:28px;
+}
+
+.err{
+  display:flex;align-items:center;gap:11px;
+  background:linear-gradient(135deg, #fff5f6, #fef2f2);
+  color:var(--rose-l);
+  border:1.5px solid #fecdd3;border-radius:12px;
+  padding:13px 16px;font-size:13px;font-weight:600;margin-bottom:24px;
+  animation:shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.field{margin-bottom:20px;animation: fadeIn 0.8s ease-out forwards;}
+.field:nth-child(3) { animation-delay: 0.35s; }
+.field:nth-child(4) { animation-delay: 0.4s; }
+
+.lbl{
+  font-size:12px;font-weight:700;color:var(--text-l);display:block;margin-bottom:8px;
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+
+.inp-wrap{
+  position:relative;
+}
+
+.inp-wrap i{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:#cbd5e1;font-size:16px;pointer-events:none;
+  transition:all .25s;
+}
+
+.inp-wrap input{
+  width:100%;padding:13px 14px 13px 42px;
+  border:2px solid #e2e8f0;border-radius:12px;
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--text);
+  background:#fafbfc;
+  transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline:none;
+  font-weight:500;
+}
+
+.inp-wrap input::placeholder{color:#cbd5e1;}
+
+.inp-wrap input:focus{
+  border-color:var(--teal);
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(0, 212, 255, 0.15),
+             inset 0 1px 0 rgba(0, 212, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.inp-wrap input:focus~i{
+  color:var(--teal);
+  transform:translateY(-50%) scale(1.1);
+}
+
+.inp-wrap i{z-index:1;}
+
+.btn-sign{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg, var(--navy) 0%, var(--navy-l) 100%);
+  color:#fff;border:none;border-radius:12px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing:.4px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 20px rgba(10, 20, 40, 0.3),
+             inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position:relative;
+  overflow:hidden;
+  animation: fadeIn 0.8s ease-out 0.45s both;
+}
+
+.btn-sign::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-sign:hover{
+  background:linear-gradient(135deg, #0f3460, var(--teal));
+  box-shadow:0 10px 32px rgba(0, 212, 255, 0.35),
+             inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform:translateY(-3px);
+}
+
+.btn-sign:hover::before {
+  left: 100%;
+}
+
+.btn-sign:active{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0, 212, 255, 0.25);
+}
+
+.hint-row{
+  margin-top:26px;padding-top:20px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  animation: fadeIn 0.8s ease-out 0.5s both;
+}
+
+.hint-lbl{font-size:11px;color:#94a3b8;font-weight:600;}
+
+.chip{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;color:var(--teal);
+  background:linear-gradient(135deg, rgba(0,212,255,.08), rgba(16,185,129,.05));
+  padding:4px 11px;border-radius:7px;
+  border:1px solid rgba(0,212,255,.2);
+  font-weight:600;
+  transition:all 0.3s ease;
+}
+
+.chip:hover {
+  background:linear-gradient(135deg, rgba(0,212,255,.15), rgba(16,185,129,.1));
+  border-color:rgba(0,212,255,.4);
+  transform:scale(1.05);
+  box-shadow:0 4px 12px rgba(0, 212, 255, 0.2);
+}
+
+@media(max-width:760px){
+  .card{
+    flex-direction:column;width:min(94vw, 520px);
+    border-radius:20px;
+  }
+  .brand{
+    width:100%;padding:40px 28px;
+  }
+  .form-wrap{
+    padding:40px 28px;
+  }
+  .brand-h { font-size: 24px; }
+  .form-h { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="blob2"></div>
+<div class="card">
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-inner">
+      <div class="logo"><i class="bi bi-shield-fill-check"></i></div>
+      <div class="brand-tag">🏥 Hospital CTMS</div>
+      <div class="brand-h">Cyber Threat Monitoring System</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-wrap">
+    <div class="eyebrow"><i class="bi bi-lock-fill"></i> Secure Portal</div>
+    <div class="form-h">Welcome, Guardian</div>
+    <div class="form-p">Enter your credentials to access the threat monitoring dashboard.</div>
+    <div class="divider"></div>
+
+    {% if error %}
+    <div class="err"><i class="bi bi-exclamation-circle-fill"></i>{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login" autocomplete="off">
+      <div class="field">
+        <label class="lbl" for="username">👤 Username</label>
+        <div class="inp-wrap">
+          <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus autocomplete="username"/>
+          <i class="bi bi-person-fill"></i>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="password">🔐 Password</label>
+        <div class="inp-wrap">
+          <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password"/>
+          <i class="bi bi-lock-fill"></i>
+        </div>
+      </div>
+      <button type="submit" class="btn-sign">
+        <i class="bi bi-box-arrow-in-right"></i> Access Dashboard
+      </button>
+    </form>
+
+    <div class="hint-row">
+      <span class="hint-lbl">Demo Credentials:</span>
+      <span class="chip">admin</span>
+      <span class="hint-lbl">/</span>
+      <span class="chip">admin123</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

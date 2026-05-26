@@ -1,0 +1,15 @@
+# Web framework (Flask is used — FastAPI is NOT required)
+Flask>=3.0.0
+Werkzeug>=3.0.0
+Jinja2>=3.1.0
+
+# ML
+scikit-learn>=1.4.0
+numpy>=1.26.0
+
+# MySQL driver (optional — SQLite is used automatically if MySQL is unavailable)
+# Uncomment if you have a MySQL server:
+# mysql-connector-python>=8.4.0
+
+# Utilities (stdlib only — no extra installs needed)
+# sqlite3, csv, json, hashlib, logging, secrets — all built-in

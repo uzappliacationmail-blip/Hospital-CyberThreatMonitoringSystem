@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Hospital CTMS — Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body data-role="{{ role }}" data-username="{{ username }}">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo"><i class="bi bi-shield-fill-check"></i></div>
+    <div>
+      <div class="sb-name">Hospital CTMS</div>
+      <div class="sb-sub">Threat Monitor v3</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-sec-label">Monitor</div>
+    <button class="nl active" onclick="nav('dashboard')"><i class="bi bi-grid-1x2-fill"></i>Dashboard</button>
+    <button class="nl" onclick="nav('predict')"><i class="bi bi-cpu-fill"></i>Predict Traffic</button>
+    <button class="nl" onclick="nav('alerts')">
+      <i class="bi bi-bell-fill"></i>Alerts
+      <span class="nbadge" id="alert-badge"></span>
+    </button>
+
+    <div class="nav-sec-label">Simulation</div>
+    <button class="nl" onclick="nav('simulate')"><i class="bi bi-play-circle-fill"></i>KDD Simulation</button>
+    <button class="nl" onclick="nav('results')"><i class="bi bi-bar-chart-fill"></i>Sim Results</button>
+
+    <div class="nav-sec-label" id="admin-label" style="display:none">Admin</div>
+    <button class="nl" id="nav-users" onclick="nav('users')" style="display:none"><i class="bi bi-people-fill"></i>User Management</button>
+    <button class="nl" id="nav-audit" onclick="nav('audit')" style="display:none"><i class="bi bi-journal-bookmark-fill"></i>Audit Log</button>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="status-row"><span class="sdot"></span>System online · Auto-refresh 30s</div>
+    <div class="sb-user">
+      <div class="sb-av"><i class="bi bi-person-fill"></i></div>
+      <div>
+        <div class="sb-un" id="sb-uname">{{ username }}</div>
+        <div class="sb-ur" id="sb-role">{{ role }}</div>
+      </div>
+      <a href="/logout" class="sb-out" title="Sign out" id="logout-link"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════════ -->
+<main class="main">
+  <header class="topbar">
+    <div class="tb-l">
+      <span class="pg-title" id="pg-title">Overview</span>
+      <span class="pg-crumb" id="pg-crumb">Dashboard</span>
+    </div>
+    <div class="tb-r">
+      <span class="tb-chip live"><i class="bi bi-activity"></i>Live</span>
+      <span class="tb-chip">
+        Signed in as <strong style="margin-left:4px" id="tb-user">{{ username }}</strong>
+        <span id="tb-role-chip" class="badge b-analyst ms-1" style="padding:2px 8px;font-size:10px">{{ role }}</span>
+      </span>
+      <a href="/logout" class="btn-g" id="topbar-logout" style="font-size:12px;padding:6px 13px;">
+        <i class="bi bi-box-arrow-right"></i>Sign Out
+      </a>
+      <span class="tb-clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ══════ DASHBOARD ═════════════════════════════════════════════════════ -->
+    <section id="s-dashboard">
+      <div class="stat-grid">
+        <div class="sc c-teal">
+          <div class="sc-top"><div class="sc-icon teal"><i class="bi bi-database-fill-check"></i></div><span class="sc-trend neu" id="trend-total">All time</span></div>
+          <div class="sc-val" id="stat-total">—</div><div class="sc-lbl">Total Logs</div>
+        </div>
+        <div class="sc c-blue">
+          <div class="sc-top"><div class="sc-icon blue"><i class="bi bi-check-circle-fill"></i></div><span class="sc-trend up" id="trend-normal">—</span></div>
+          <div class="sc-val" id="stat-normal">—</div><div class="sc-lbl">Normal Traffic</div>
+        </div>
+        <div class="sc c-rose">
+          <div class="sc-top"><div class="sc-icon rose"><i class="bi bi-shield-exclamation"></i></div><span class="sc-trend dn" id="trend-anomaly">—</span></div>
+          <div class="sc-val" id="stat-anomaly">—</div><div class="sc-lbl">Anomalies</div>
+        </div>
+        <div class="sc c-amber">
+          <div class="sc-top"><div class="sc-icon amber"><i class="bi bi-graph-up-arrow"></i></div><span class="sc-trend dn" id="trend-rate">—</span></div>
+          <div class="sc-val" id="stat-rate">—</div><div class="sc-lbl">Threat Rate</div>
+        </div>
+      </div>
+
+      <!-- ══ COMMAND CENTER ══════════════════════════════════════════════════ -->
+      <div class="row g-3 mb-3">
+        <div class="col-xl-4">
+          <div class="panel cc-panel">
+            <div class="panel-hdr">
+              <div><div class="panel-title"><i class="bi bi-command"></i> Command Center</div><div class="panel-sub">Hospital SOC Status</div></div>
+              <div class="btn-ic" onclick="loadCounts()" title="Refresh"><i class="bi bi-arrow-repeat"></i></div>
+            </div>
+            <div class="cc-grid">
+              <div class="cc-metric">
+                <div class="cc-label">Open Incidents</div>
+                <div class="cc-value" id="cc-incidents">0</div>
+              </div>
+              <div class="cc-metric">
+                <div class="cc-label">Threat Index</div>
+                <div class="cc-value" id="cc-threat">0/100</div>
+              </div>
+              <div class="cc-metric">
+                <div class="cc-label">Response Ready</div>
+                <div class="cc-status ready" id="cc-response">✓ Ready</div>
+              </div>
+              <div class="cc-metric">
+                <div class="cc-label">Latest Alert</div>
+                <div class="cc-time" id="cc-latest">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="panel">
+            <div class="panel-hdr">
+              <div><div class="panel-title"><i class="bi bi-fire"></i> Threat Heatmap</div><div class="panel-sub">24-hour intensity</div></div>
+            </div>
+            <div id="heatmap-wrap" class="heatmap-grid"></div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="panel">
+            <div class="panel-hdr">
+              <div><div class="panel-title"><i class="bi bi-clock-history"></i> Response Timeline</div><div class="panel-sub">Latest activities</div></div>
+            </div>
+            <div id="timeline-wrap" class="timeline-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-xl-8">
+          <div class="panel">
+            <div class="panel-hdr">
+              <div><div class="panel-title">Network Traffic — Last 24 Hours</div><div class="panel-sub">Normal vs anomalous connections per hour</div></div>
+              <div class="btn-ic" onclick="loadSummary()" title="Refresh"><i class="bi bi-arrow-repeat"></i></div>
+            </div>
+            <canvas id="trafficChart" height="110"></canvas>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="panel h-100">
+            <div class="panel-hdr">
+              <div><div class="panel-title">Session Breakdown</div><div class="panel-sub">Classification distribution</div></div>
+            </div>
+            <div class="donut-wrap">
+              <canvas id="donutChart" height="185"></canvas>
+              <div class="donut-lbl"><span class="donut-pct" id="donut-pct">0%</span><span class="donut-desc">threat rate</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Recent Alerts</div><div class="panel-sub">Latest flagged anomalies</div></div>
+          <button class="btn-g" onclick="nav('alerts')"><i class="bi bi-arrow-right"></i>View All</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Sev</th><th>ID</th><th>Source</th><th>Status</th><th>Confidence</th><th>Timestamp</th><th>Actions</th></tr></thead>
+          <tbody id="preview-body"><tr><td colspan="7"><div class="empty"><i class="bi bi-hourglass-split spin"></i><p>Loading…</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════ PREDICT ═══════════════════════════════════════════════════════ -->
+    <section id="s-predict" style="display:none">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Manual Traffic Classification</div><div class="panel-sub">Enter packet features to classify in real time · Rate limit: 60 req/min</div></div>
+          <div class="d-flex gap-2">
+            <button class="btn-g" onclick="loadSample('normal')"><i class="bi bi-check-circle"></i>Normal</button>
+            <button class="btn-g" onclick="loadSample('attack')"><i class="bi bi-bug"></i>Attack</button>
+          </div>
+        </div>
+        <div class="row g-4">
+          <!-- Fields -->
+          <div class="col-md-7">
+            <div class="row g-3">
+              <div class="col-6 col-md-4"><label class="flbl">Duration<span class="hint-tag">sec</span></label><input type="number" step="any" class="form-control" id="f-dur" value="0.5"/></div>
+              <div class="col-6 col-md-4"><label class="flbl">Protocol</label>
+                <select class="form-select" id="f-proto"><option value="0">TCP</option><option value="1">UDP</option><option value="2">ICMP</option></select></div>
+              <div class="col-6 col-md-4"><label class="flbl">Flag<span class="hint-tag">encoded</span></label><input type="number" class="form-control" id="f-flag" value="1"/></div>
+              <div class="col-6 col-md-4"><label class="flbl">Src Bytes</label><input type="number" class="form-control" id="f-src" value="512"/></div>
+              <div class="col-6 col-md-4"><label class="flbl">Dst Bytes</label><input type="number" class="form-control" id="f-dst" value="1024"/></div>
+              <div class="col-6 col-md-4"><label class="flbl">Land</label>
+                <select class="form-select" id="f-land"><option value="0">0 — Diff host</option><option value="1">1 — Same host</option></select></div>
+              <div class="col-6 col-md-3"><label class="flbl">Wrong Frag</label><input type="number" class="form-control" id="f-frag" value="0"/></div>
+              <div class="col-6 col-md-3"><label class="flbl">Urgent</label><input type="number" class="form-control" id="f-urg" value="0"/></div>
+              <div class="col-6 col-md-3"><label class="flbl">Hot</label><input type="number" class="form-control" id="f-hot" value="1"/></div>
+              <div class="col-6 col-md-3"><label class="flbl">Failed Logins</label><input type="number" class="form-control" id="f-fail" value="0"/></div>
+            </div>
+            <button class="btn-p mt-4" id="btn-classify" onclick="doPredict()">
+              <i class="bi bi-cpu-fill"></i>Classify Traffic
+            </button>
+          </div>
+          <!-- Result -->
+          <div class="col-md-5">
+            <div class="res-panel" id="res-panel">
+              <div class="res-ph"><i class="bi bi-cpu"></i>Submit features to classify</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ ALERTS ════════════════════════════════════════════════════════ -->
+    <section id="s-alerts" style="display:none">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Anomaly Alerts</div><div class="panel-sub">All flagged threats stored in MySQL</div></div>
+          <button class="btn-g" onclick="loadAlerts()"><i class="bi bi-arrow-repeat"></i>Refresh</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Sev</th><th>ID</th><th>Source</th><th>Status</th><th>Confidence</th><th>Timestamp</th><th>Actions</th></tr></thead>
+          <tbody id="alerts-body"><tr><td colspan="7"><div class="empty"><i class="bi bi-hourglass-split spin"></i><p>Loading…</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════ KDD SIMULATION ════════════════════════════════════════════════ -->
+    <section id="s-simulate" style="display:none">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="panel h-100">
+            <div class="panel-title mb-1">KDDTest+ Dataset Simulation</div>
+            <div class="panel-sub mb-4">Upload a KDDTest+ CSV file or run the built-in synthetic simulation. Each row is preprocessed, classified by the ML model, and logged to MySQL.</div>
+
+            <!-- Upload zone -->
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('kdd-file').click()"
+                 ondragover="ev.preventDefault();this.classList.add('drag')"
+                 ondragleave="this.classList.remove('drag')"
+                 ondrop="handleDrop(event)">
+              <i class="bi bi-cloud-upload"></i>
+              <p>Click or drag &amp; drop a KDDTest+ CSV file</p>
+              <p style="font-size:11px;margin-top:4px;color:#94a3b8">Format: NSL-KDD comma-separated, no header required</p>
+              <div class="fname" id="file-name"></div>
+            </div>
+            <input type="file" id="kdd-file" accept=".csv,.txt" style="display:none" onchange="fileSelected(this)"/>
+
+            <div class="mt-3 d-flex align-items-center gap-3">
+              <div class="flex-grow-1">
+                <label class="flbl">Rows to process<span class="hint-tag">max 500</span></label>
+                <input type="number" class="form-control" id="sim-rows" value="100" min="10" max="500"/>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+              <button class="btn-p flex-grow-1" id="btn-sim" onclick="runSimulation()">
+                <i class="bi bi-play-fill"></i>Run Simulation
+              </button>
+              <button class="btn-g" onclick="clearSimFile()"><i class="bi bi-x"></i>Clear</button>
+            </div>
+
+            <!-- Progress -->
+            <div id="sim-progress" style="display:none;margin-top:16px;">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:6px;" id="sim-prog-txt">Running…</div>
+              <div class="pbar"><div class="pbar-fill pbar-teal" id="sim-prog-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="panel h-100">
+            <div class="panel-title mb-1">What This Simulates</div>
+            <div class="panel-sub mb-4">NSL-KDD attack categories mapped to hospital threat scenarios</div>
+            <table class="tbl">
+              <thead><tr><th>KDD Category</th><th>Hospital Equivalent</th><th>Threat Level</th></tr></thead>
+              <tbody>
+                <tr><td><span class="badge b-threat">DoS</span></td><td>Medical device flooding / outage</td><td><span class="sev high"></span> High</td></tr>
+                <tr><td><span class="badge b-threat">Probe</span></td><td>Network reconnaissance / port scan</td><td><span class="sev high"></span> High</td></tr>
+                <tr><td><span class="badge b-threat">R2L</span></td><td>Unauthorized remote access</td><td><span class="sev med"></span> Medium</td></tr>
+                <tr><td><span class="badge b-threat">U2R</span></td><td>Privilege escalation / ransomware</td><td><span class="sev high"></span> High</td></tr>
+                <tr><td><span class="badge b-safe">Normal</span></td><td>Routine EHR / imaging traffic</td><td style="color:var(--green)">Safe</td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top:18px;padding:14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border);">
+              <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;"><i class="bi bi-info-circle" style="color:var(--teal)"></i> Preprocessing Pipeline</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+                1. Parse CSV row → extract 10 features<br>
+                2. Encode protocol (tcp/udp/icmp → 0/1/2)<br>
+                3. Encode flag (SF/S0/REJ/… → integer)<br>
+                4. Feed to Random Forest model<br>
+                5. Log result + metrics to MySQL
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live result (appears after run) -->
+      <div id="sim-result" style="display:none;margin-top:20px;">
+        <div class="panel">
+          <div class="panel-title mb-1">Simulation Results</div>
+          <div class="panel-sub mb-4">Performance metrics from the last run — <span id="res-run-id" class="mono"></span></div>
+
+          <div class="metric-grid">
+            <div class="metric-card"><div class="metric-val" style="color:var(--green)" id="res-acc">—</div><div class="metric-lbl">Accuracy</div><div class="pbar mt-2"><div class="pbar-fill pbar-green" id="bar-acc" style="width:0%"></div></div></div>
+            <div class="metric-card"><div class="metric-val" style="color:var(--teal-d)" id="res-prec">—</div><div class="metric-lbl">Precision</div><div class="pbar mt-2"><div class="pbar-fill pbar-teal" id="bar-prec" style="width:0%"></div></div></div>
+            <div class="metric-card"><div class="metric-val" style="color:var(--blue)" id="res-rec">—</div><div class="metric-lbl">Recall</div><div class="pbar mt-2"><div class="pbar-fill pbar-blue" id="bar-rec" style="width:0%"></div></div></div>
+            <div class="metric-card"><div class="metric-val" style="color:var(--amber)" id="res-f1">—</div><div class="metric-lbl">F1 Score</div><div class="pbar mt-2"><div class="pbar-fill pbar-rose" id="bar-f1" style="width:0%"></div></div></div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-5">
+              <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;">Confusion Matrix</div>
+              <div class="cm-grid">
+                <div class="cm-cell cm-tp"><div class="val" id="cm-tp">—</div><div class="lbl">True Positive</div></div>
+                <div class="cm-cell cm-fp"><div class="val" id="cm-fp">—</div><div class="lbl">False Positive</div></div>
+                <div class="cm-cell cm-fn"><div class="val" id="cm-fn">—</div><div class="lbl">False Negative</div></div>
+                <div class="cm-cell cm-tn"><div class="val" id="cm-tn">—</div><div class="lbl">True Negative</div></div>
+              </div>
+            </div>
+            <div class="col-md-7">
+              <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;">Traffic Breakdown</div>
+              <canvas id="simChart" height="130"></canvas>
+            </div>
+          </div>
+
+          <div class="row g-2 mt-3" style="font-size:13px;">
+            <div class="col-6 col-md-3"><div style="color:var(--muted)">Total Rows</div><div class="mono" id="res-total">—</div></div>
+            <div class="col-6 col-md-3"><div style="color:var(--muted)">Anomalies</div><div class="mono" id="res-anom">—</div></div>
+            <div class="col-6 col-md-3"><div style="color:var(--muted)">Normal</div><div class="mono" id="res-norm">—</div></div>
+            <div class="col-6 col-md-3"><div style="color:var(--muted)">Avg Response</div><div class="mono" id="res-ms">—</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ SIM RESULTS HISTORY ═══════════════════════════════════════════ -->
+    <section id="s-results" style="display:none">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Simulation Run History</div><div class="panel-sub">All past KDDTest+ simulation runs stored in MySQL</div></div>
+          <button class="btn-g" onclick="loadRuns()"><i class="bi bi-arrow-repeat"></i>Refresh</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Run ID</th><th>File</th><th>Rows</th><th>Anomalies</th><th>Accuracy</th><th>F1 Score</th><th>Avg ms</th><th>Date</th></tr></thead>
+          <tbody id="runs-body"><tr><td colspan="8"><div class="empty"><i class="bi bi-hourglass-split spin"></i><p>Loading…</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════ USERS (admin) ════════════════════════════════════════════════ -->
+    <section id="s-users" style="display:none">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="panel">
+            <div class="panel-title mb-1">Add New User</div>
+            <div class="panel-sub mb-4">Create analyst or admin accounts</div>
+            <div class="mb-3"><label class="flbl">Username</label><input type="text" class="form-control" id="u-name" placeholder="e.g. jsmith"/></div>
+            <div class="mb-3"><label class="flbl">Password</label><input type="password" class="form-control" id="u-pass" placeholder="Min 6 characters"/></div>
+            <div class="mb-4"><label class="flbl">Role</label>
+              <select class="form-select" id="u-role"><option value="analyst">Analyst</option><option value="admin">Admin</option></select></div>
+            <button class="btn-p w-100" onclick="addUser()"><i class="bi bi-person-plus-fill"></i>Create User</button>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="panel">
+            <div class="panel-hdr">
+              <div><div class="panel-title">All Users</div><div class="panel-sub">Registered system accounts</div></div>
+              <div class="btn-ic" onclick="loadUsers()"><i class="bi bi-arrow-repeat"></i></div>
+            </div>
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Created</th><th></th></tr></thead>
+              <tbody id="users-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ AUDIT (admin) ════════════════════════════════════════════════ -->
+    <section id="s-audit" style="display:none">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">System Audit Log</div><div class="panel-sub">All authentication, prediction, simulation, and admin events</div></div>
+          <button class="btn-g" onclick="loadAudit()"><i class="bi bi-arrow-repeat"></i>Refresh</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th>User</th><th>Action</th><th>Detail</th><th>IP</th><th>Timestamp</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ══ JAVASCRIPT ════════════════════════════════════════════════════════════ -->
+<script src="/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
